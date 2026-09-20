@@ -1,6 +1,7 @@
 # requirements.txt
 # Flask>=3.0,<4.0
 # datasets>=3.0,<4.0
+# gunicorn>=23.0,<24.0
 
 """A self-contained emotion-labeling application.
 
@@ -40,7 +41,18 @@ from flask import (
 from jinja2 import DictLoader
 
 
-DATABASE_PATH = Path(__file__).resolve().with_name("labeling.db")
+def resolve_database_path() -> Path:
+    """Use a configured persistent volume when one is available."""
+    configured_path = os.environ.get("LABELING_DATABASE_PATH")
+    if configured_path:
+        database_path = Path(configured_path).expanduser().resolve()
+    else:
+        database_path = Path(__file__).resolve().with_name("labeling.db")
+    database_path.parent.mkdir(parents=True, exist_ok=True)
+    return database_path
+
+
+DATABASE_PATH = resolve_database_path()
 EMOTIONS = ("anger", "fear", "joy", "love", "sadness", "surprise")
 LABEL_LIMIT = 5
 PAGE_SIZE = 50
@@ -243,6 +255,13 @@ def admin_required(view: Callable) -> Callable:
 @app.get("/")
 def onboarding():
     return render_template("onboarding.html", title="Emotion Labeling Task")
+
+
+@app.get("/healthz")
+def health_check():
+    """Lightweight readiness check for Render and other hosting platforms."""
+    get_db().execute("SELECT 1").fetchone()
+    return {"status": "ok"}, 200
 
 
 @app.post("/start")

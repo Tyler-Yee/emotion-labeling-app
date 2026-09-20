@@ -1,5 +1,7 @@
 __pycache__/
-*.pyc
-venv/
+*.py[cod]
+.venv/
 .env
 labeling.db
+labeling.db-shm
+labeling.db-wal
