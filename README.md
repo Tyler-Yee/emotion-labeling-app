@@ -2,6 +2,8 @@
 
 A Flask web application for collecting emotion labels for Twitter-style text. It presents five randomized messages per participant and stores labels in SQLite locally or PostgreSQL when `DATABASE_URL` is configured. The first initialization downloads a reproducible, balanced 60-message sample from [`dair-ai/emotion`](https://huggingface.co/datasets/dair-ai/emotion).
 
+The application pins Render to Python 3.12 through `.python-version`. This avoids compatibility problems with Python 3.14 and the Hugging Face dataset loader.
+
 ## Local development
 
 ```bash
